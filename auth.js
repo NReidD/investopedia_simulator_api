@@ -34,7 +34,7 @@ const waitFor = async (timeToWait) => {
         let authHeader = null
 
         page.on('response', async response => {
-            if(response.url() === 'https://www.investopedia.com/auth/realms/investopedia/protocol/openid-connect/token') {
+            if(response.url() === 'https://auth.investopedia.com/realms/investopedia/protocol/openid-connect/token') {
                 const response_json = await response.json()
                 fs.writeFileSync('./auth.json',JSON.stringify(response_json))
                 fileWritten = true

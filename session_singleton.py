@@ -39,6 +39,7 @@ class Session:
     @classmethod
     def refresh_token(cls):
         if cls.is_logged_in():
+            cls.__session.headers.clear()
             cls.__session.headers.update({'Content-Type': 'application/x-www-form-urlencoded'})
             refresh_token = cls.__auth_data['refresh_token']
             resp = cls.__session.post(REFRESH_AUTH_TOKEN_URL, data=Queries.refresh_token(refresh_token))
