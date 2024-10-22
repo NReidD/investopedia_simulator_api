@@ -12,7 +12,7 @@ from warnings import warn
 import requests
 from ratelimit import limits,sleep_and_retry
 import logging
-
+import yfinance as yf
 
 class InvalidSecurityTypeException(Exception):
     pass
@@ -469,12 +469,15 @@ def stock_quote(symbol):
     yahoo_resp.raise_for_status()
     yahoo_data = json.loads(yahoo_resp.text)
     prev_close = yahoo_data['chart']['result'][0]['meta']['previousClose']
+    tik = yf.Ticker(symbol)
+    hist = tik.history(period="5d")
+
 
     stock_quote_data = {
         'symbol': symbol,
         'name': name,
         'exchange': exchange,
-        'previous_close': prev_close,
+        'previous_close': hist.get("Close").iloc[3],
         'bid': quote_data['bidPrice'],
         'ask': quote_data['askPrice'],
         'volume': quote_data['volume'],
