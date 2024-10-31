@@ -13,6 +13,9 @@ import requests
 from ratelimit import limits,sleep_and_retry
 import logging
 import yfinance as yf
+import time
+
+
 
 class InvalidSecurityTypeException(Exception):
     pass
@@ -461,23 +464,19 @@ def stock_quote(symbol):
     quote_resp.raise_for_status()
 
     quote_data = json.loads(quote_resp.text)['data']['readStock']['technical']
-
-    yahoo_url = "https://query1.finance.yahoo.com/v8/finance/chart/%s" % symbol
-    yahoo_headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-
-    yahoo_resp = requests.get(yahoo_url,headers=yahoo_headers)
-    yahoo_resp.raise_for_status()
-    yahoo_data = json.loads(yahoo_resp.text)
-    prev_close = yahoo_data['chart']['result'][0]['meta']['previousClose']
     tik = yf.Ticker(symbol)
     hist = tik.history(period="5d")
+    current_epoch_time = time.time()
+    print(yf.Ticker(symbol).history(interval="1m",period="1d",start=int(current_epoch_time-600)).mean().get("Close"))
 
+
+    prev_close = hist.get("Close").iloc[3]
 
     stock_quote_data = {
         'symbol': symbol,
         'name': name,
         'exchange': exchange,
-        'previous_close': hist.get("Close").iloc[3],
+        'previous_close': prev_close,
         'bid': quote_data['bidPrice'],
         'ask': quote_data['askPrice'],
         'volume': quote_data['volume'],
